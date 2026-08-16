@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>درب — تمويل جماعي للسياحة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=Tajawal:wght@300;400;500;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16241F;
+    --juniper:#2F5D50;
+    --juniper-light:#3E7767;
+    --juniper-pale:#E7EFEA;
+    --sand:#F1E9DA;
+    --sand-deep:#E6DAC3;
+    --clay:#C1652F;
+    --clay-light:#E2A57C;
+    --fog:#DEE6E0;
+    --gold:#A8842F;
+    --white:#FFFFFF;
+    --danger:#B23A3A;
+    --radius:18px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--ink);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(62,119,103,0.35), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(193,101,47,0.15), transparent 40%);
+    font-family:'Tajawal', sans-serif;
+    color: var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding: 28px 10px;
+  }
+  .num{ font-family:'JetBrains Mono', monospace; direction:ltr; unicode-bidi:isolate; }
+  .app{
+    width:100%;
+    max-width:420px;
+    height:840px;
+    background: var(--sand);
+    border-radius: 34px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.45), 0 0 0 8px rgba(255,255,255,0.03);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .statusbar{
+    height:14px;
+  }
+  .screen{
+    display:none;
+    flex-direction:column;
+    flex:1;
+    min-height:0;
+  }
+  .screen.active{ display:flex; }
+  .scroll{
+    flex:1;
+    overflow-y:auto;
+    -ms-overflow-style:none;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{ display:none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; gap:10px;
+    padding:16px 18px 12px;
+    background:var(--sand);
+  }
+  .topbar h1{
+    font-family:'El Messiri', serif;
+    font-size:18px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .back-btn{
+    width:34px;height:34px;border-radius:50%;
+    background:var(--white); border:1px solid var(--fog);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:16px; color:var(--juniper);
+    flex-shrink:0;
+  }
+  .icon-btn{
+    width:34px;height:34px;border-radius:50%;
+    background:var(--white); border:1px solid var(--fog);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:15px; color:var(--ink);
+    margin-inline-start:auto; flex-shrink:0;
+  }
+
+  /* ---------- Splash ---------- */
+  #screen-splash .hero{
+    flex:1;
+    background: linear-gradient(180deg, var(--juniper) 0%, var(--ink) 100%);
+    background-image:
+      linear-gradient(180deg, rgba(22,36,31,0.15) 0%, var(--ink) 100%),
+      repeating-linear-gradient( 100deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 26px),
+      repeating-linear-gradient( 15deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 34px);
+    color:var(--sand);
+    display:flex; flex-direction:column; justify-content:flex-end;
+    padding: 40px 26px 34px;
+  }
+  .brand-mark{
+    width:56px;height:56px;border-radius:16px;
+    background:var(--clay);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'El Messiri',serif; font-weight:700; font-size:24px; color:var(--white);
+    margin-bottom:18px;
+  }
+  #screen-splash .eyebrow{
+    font-size:12.5px; letter-spacing:.5px; color:var(--fog); opacity:.85; margin-bottom:10px;
+  }
+  #screen-splash h2{
+    font-family:'El Messiri', serif;
+    font-size:32px; line-height:1.35; font-weight:700; margin-bottom:14px;
+  }
+  #screen-splash p.sub{
+    font-size:14.5px; line-height:1.8; color:#D9E4DE; margin-bottom:26px; max-width:320px;
+  }
+  .btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:14px 18px; border-radius:14px; border:none;
+    font-family:'Tajawal'; font-size:15px; font-weight:700;
+    cursor:pointer; width:100%;
+  }
+  .btn-primary{ background:var(--clay); color:var(--white); }
+  .btn-primary:active{ background:#a8542a; }
+  .btn-ghost{ background:transparent; color:var(--sand); border:1.5px solid rgba(241,233,218,0.4); }
+  .btn-outline{ background:var(--white); color:var(--juniper); border:1.5px solid var(--juniper); }
+  .btn-row{ display:flex; gap:10px; }
+  .disclaimer-strip{
+    background:var(--ink); color:#9AAAA2; font-size:10.5px; text-align:center;
+    padding:8px 16px; line-height:1.6;
+  }
+
+  /* ---------- Cards / generic ---------- */
+  .px{ padding-left:18px; padding-right:18px; }
+  .section-title{
+    font-family:'El Messiri', serif; font-weight:700; font-size:16px; color:var(--ink);
+    margin: 18px 0 10px;
+  }
+  .card{
+    background:var(--white); border-radius:var(--radius);
+    padding:16px; border:1px solid var(--fog);
+  }
+  .pill{
+    display:inline-flex; align-items:center; padding:4px 10px; border-radius:20px;
+    font-size:11px; font-weight:700; background:var(--juniper-pale); color:var(--juniper);
+  }
+  .pill.clay{ background:#F7E4D6; color:var(--clay); }
+  .pill.gold{ background:#F2ECD9; color:var(--gold); }
+
+  /* ---------- Auth ---------- */
+  .step-dots{ display:flex; gap:6px; padding:0 18px 6px; }
+  .step-dots span{ height:4px; flex:1; border-radius:4px; background:var(--fog); }
+  .step-dots span.done{ background:var(--clay); }
+  .field-label{ font-size:12.5px; font-weight:700; color:var(--ink); margin-bottom:6px; display:block; }
+  .field{
+    width:100%; padding:13px 14px; border-radius:12px; border:1.5px solid var(--fog);
+    font-family:'Tajawal'; font-size:14px; background:var(--white); margin-bottom:14px;
+  }
+  .field:focus{ outline:none; border-color:var(--juniper); }
+  .role-card{
+    border:1.5px solid var(--fog); border-radius:16px; padding:16px; margin-bottom:12px;
+    display:flex; align-items:center; gap:12px; cursor:pointer; background:var(--white);
+  }
+  .role-card.selected{ border-color:var(--clay); background:#FBF3EC; }
+  .role-icon{
+    width:42px;height:42px;border-radius:12px; background:var(--juniper-pale);
+    display:flex;align-items:center;justify-content:center;font-size:19px; flex-shrink:0;
+  }
+  .role-card h3{ font-size:14.5px; font-weight:700; margin-bottom:3px; }
+  .role-card p{ font-size:12px; color:#6B7772; line-height:1.5; }
+  .nafath-box{
+    border:1.5px dashed var(--juniper); border-radius:16px; padding:22px; text-align:center; background:var(--juniper-pale);
+  }
+  .spinner{
+    width:34px;height:34px; border-radius:50%; border:3px solid var(--fog); border-top-color:var(--juniper);
+    margin:0 auto 14px; animation:spin 1s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .check-circle{
+    width:60px;height:60px;border-radius:50%; background:var(--juniper); color:var(--white);
+    display:flex;align-items:center;justify-content:center; font-size:28px; margin:0 auto 16px;
+  }
+
+  /* ---------- Home ---------- */
+  .greet-row{ display:flex; align-items:center; padding:16px 18px 4px; gap:10px; }
+  .avatar{
+    width:40px;height:40px;border-radius:50%; background:var(--juniper); color:var(--white);
+    display:flex;align-items:center;justify-content:center; font-weight:700; font-size:14px; flex-shrink:0;
+  }
+  .greet-row .name{ font-size:14px; font-weight:700; }
+  .greet-row .hint{ font-size:11.5px; color:#6B7772; }
+  .chips{ display:flex; gap:8px; overflow-x:auto; padding:12px 18px 6px; }
+  .chip{
+    white-space:nowrap; padding:8px 14px; border-radius:20px; font-size:12.5px; font-weight:600;
+    background:var(--white); border:1px solid var(--fog); color:var(--ink); cursor:pointer;
+  }
+  .chip.active{ background:var(--ink); color:var(--sand); border-color:var(--ink); }
+  .howto-card{
+    background:linear-gradient(135deg, var(--juniper) 0%, #234238 100%); color:var(--sand);
+    border-radius:var(--radius); padding:16px; margin:12px 18px; position:relative;
+  }
+  .howto-card .x{ position:absolute; top:10px; left:12px; cursor:pointer; opacity:.7; font-size:13px; }
+  .howto-card h4{ font-family:'El Messiri'; font-size:14.5px; margin-bottom:8px; }
+  .howto-steps{ display:flex; gap:6px; font-size:10.5px; }
+  .howto-steps div{ flex:1; background:rgba(255,255,255,0.1); border-radius:8px; padding:8px 6px; text-align:center; line-height:1.5; }
+
+  .project-list{ padding: 4px 18px 20px; display:flex; flex-direction:column; gap:14px; }
+  .project-card{
+    background:var(--white); border-radius:var(--radius); overflow:hidden; border:1px solid var(--fog); cursor:pointer;
+  }
+  .project-cover{
+    height:96px; display:flex; align-items:flex-end; padding:10px; position:relative; color:var(--white);
+  }
+  .project-cover .tags{ display:flex; gap:6px; }
+  .project-cover .badge{
+    background:rgba(255,255,255,0.9); color:var(--ink); font-size:10.5px; font-weight:700;
+    padding:3px 9px; border-radius:20px;
+  }
+  .project-body{ padding:13px 14px 15px; }
+  .project-body h3{ font-family:'El Messiri'; font-size:15.5px; margin-bottom:3px; }
+  .project-body .loc{ font-size:11.5px; color:#6B7772; margin-bottom:10px; }
+  .funding-row{ display:flex; align-items:center; gap:12px; }
+  .ring{
+    width:52px;height:52px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ring-inner{
+    width:40px;height:40px;border-radius:50%; background:var(--white);
+    display:flex;align-items:center;justify-content:center; font-size:10.5px; font-weight:700; color:var(--clay);
+  }
+  .fund-stats{ flex:1; font-size:11.5px; color:#6B7772; }
+  .fund-stats b{ color:var(--ink); font-size:13px; }
+  .fund-stats .raised-line{ display:flex; justify-content:space-between; margin-bottom:2px;}
+
+  /* ---------- Bottom nav ---------- */
+  .bottomnav{
+    display:flex; background:var(--white); border-top:1px solid var(--fog);
+    padding:8px 6px 10px;
+  }
+  .navbtn{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    background:none; border:none; cursor:pointer; font-family:'Tajawal'; font-size:10.5px;
+    color:#9AA6A0; font-weight:600;
+  }
+  .navbtn.active{ color:var(--juniper); }
+  .navbtn .ic{ font-size:17px; }
+
+  /* ---------- Project detail ---------- */
+  .cover-hero{
+    height:190px; position:relative; display:flex; flex-direction:column; justify-content:flex-end; padding:16px; color:var(--white);
+  }
+  .cover-hero .topcontrols{ position:absolute; top:14px; left:16px; right:16px; display:flex; justify-content:space-between; }
+  .cover-hero h2{ font-family:'El Messiri'; font-size:20px; margin-bottom:4px; }
+  .detail-tabs{ display:flex; border-bottom:1px solid var(--fog); padding:0 18px; }
+  .dtab{
+    padding:12px 4px; margin-inline-end:22px; font-size:13px; font-weight:700; color:#9AA6A0;
+    border-bottom:2px solid transparent; cursor:pointer;
+  }
+  .dtab.active{ color:var(--ink); border-color:var(--clay); }
+  .stat-grid{ display:flex; gap:10px; margin:16px 0; }
+  .stat-box{ flex:1; background:var(--white); border:1px solid var(--fog); border-radius:14px; padding:12px; text-align:center; }
+  .stat-box .v{ font-size:15px; font-weight:700; }
+  .stat-box .l{ font-size:10.5px; color:#6B7772; margin-top:3px; }
+  .guide-strip{
+    display:flex; align-items:center; gap:10px; background:var(--juniper-pale); border-radius:14px; padding:12px; margin:14px 0;
+  }
+  .guide-strip .ic{ font-size:20px; }
+  .guide-strip b{ font-size:13px; display:block; }
+  .guide-strip span{ font-size:11.5px; color:#43554D; }
+  .milestone-track{ display:flex; overflow-x:auto; gap:0; padding:6px 0 14px; }
+  .mstep{ min-width:118px; text-align:center; position:relative; }
+  .mstep .dot{ width:26px;height:26px;border-radius:50%; background:var(--fog); color:#6B7772; display:flex;align-items:center;justify-content:center; margin:0 auto 6px; font-size:11px; font-weight:700; }
+  .mstep.done .dot{ background:var(--juniper); color:var(--white); }
+  .mstep .line{ position:absolute; top:13px; right:50%; width:100%; height:2px; background:var(--fog); z-index:-1; }
+  .mstep.done .line{ background:var(--juniper); }
+  .mstep:first-child .line{ display:none; }
+  .mstep p{ font-size:10.5px; color:#6B7772; line-height:1.4; }
+  .update-item{ display:flex; gap:10px; padding:12px 0; border-bottom:1px solid var(--fog); }
+  .update-item .thumb{ width:52px;height:52px;border-radius:10px; flex-shrink:0; }
+  .update-item h4{ font-size:12.5px; font-weight:700; margin-bottom:3px; }
+  .update-item p{ font-size:11.5px; color:#6B7772; line-height:1.5; }
+  .sticky-invest{
+    padding:12px 18px 18px; background:var(--white); border-top:1px solid var(--fog);
+    display:flex; align-items:center; gap:12px;
+  }
+  .sticky-invest .amt{ flex:1; }
+  .sticky-invest .amt b{ font-size:16px; display:block; }
+  .sticky-invest .amt span{ font-size:10.5px; color:#6B7772; }
+
+  /* ---------- Invest ---------- */
+  .stepper-row{ display:flex; align-items:center; justify-content:center; gap:22px; padding:20px 0; }
+  .stepper-btn{
+    width:44px;height:44px;border-radius:50%; border:1.5px solid var(--juniper); background:var(--white);
+    color:var(--juniper); font-size:20px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .stepper-val{ text-align:center; }
+  .stepper-val .n{ font-size:28px; font-weight:700; }
+  .stepper-val .l{ font-size:11.5px; color:#6B7772; }
+  .invest-summary-row{ display:flex; justify-content:space-between; padding:10px 0; font-size:13px; border-bottom:1px solid var(--fog); }
+  .invest-summary-row b{ font-weight:700; }
+  .agree-row{ display:flex; align-items:flex-start; gap:10px; margin:16px 0; font-size:12px; color:#43554D; line-height:1.7; }
+  .agree-row input{ margin-top:3px; }
+
+  /* ---------- Portfolio ---------- */
+  .kpi-row{ display:flex; gap:10px; padding:0 18px; }
+  .kpi{ flex:1; background:var(--white); border:1px solid var(--fog); border-radius:14px; padding:12px; }
+  .kpi .v{ font-size:16px; font-weight:700; }
+  .kpi .l{ font-size:10px; color:#6B7772; margin-top:2px; }
+  .inv-item{ display:flex; align-items:center; gap:12px; background:var(--white); border:1px solid var(--fog); border-radius:16px; padding:12px; margin-bottom:10px; }
+  .inv-cover{ width:52px;height:52px;border-radius:12px; flex-shrink:0; }
+  .inv-item h4{ font-size:13.5px; font-weight:700; margin-bottom:3px; }
+  .inv-item .bar{ height:5px; border-radius:4px; background:var(--fog); overflow:hidden; margin-top:6px; }
+  .inv-item .bar div{ height:100%; background:var(--juniper); }
+  .status-tag{ font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; }
+  .status-tag.progress{ background:#FCEFE3; color:var(--clay); }
+  .status-tag.funded{ background:var(--juniper-pale); color:var(--juniper); }
+
+  /* ---------- Profile ---------- */
+  .profile-head{ display:flex; flex-direction:column; align-items:center; padding:26px 18px 18px; }
+  .profile-head .avatar{ width:66px;height:66px; font-size:22px; margin-bottom:10px; }
+  .profile-head h2{ font-family:'El Messiri'; font-size:17px; margin-bottom:4px; }
+  .verified{ display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--juniper); font-weight:700; }
+  .menu-item{
+    display:flex; align-items:center; gap:12px; padding:14px 4px; border-bottom:1px solid var(--fog); cursor:pointer;
+  }
+  .menu-item .ic{ width:34px;height:34px;border-radius:10px; background:var(--juniper-pale); display:flex;align-items:center;justify-content:center; font-size:15px; }
+  .menu-item span{ font-size:13.5px; font-weight:600; flex:1; }
+  .menu-item .arrow{ color:#9AA6A0; }
+
+  /* ---------- Submit form ---------- */
+  textarea.field{ resize:none; height:78px; }
+  .upload-box{
+    border:1.5px dashed var(--fog); border-radius:14px; padding:20px; text-align:center; color:#6B7772; font-size:12.5px; margin-bottom:14px;
+  }
+  .review-mini{ display:flex; gap:8px; margin-top:6px; }
+  .review-mini div{ flex:1; background:var(--juniper-pale); border-radius:10px; padding:8px 6px; font-size:10px; text-align:center; color:var(--juniper); line-height:1.5; }
+
+  /* success screens */
+  .success-wrap{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 30px; }
+  .success-wrap h2{ font-family:'El Messiri'; font-size:19px; margin-bottom:10px; }
+  .success-wrap p{ font-size:13px; color:#6B7772; line-height:1.8; margin-bottom:22px; }
+  .ref-box{ background:var(--white); border:1px solid var(--fog); border-radius:12px; padding:10px 16px; font-size:12px; margin-bottom:22px; width:100%; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ========== SPLASH ========== -->
+  <div class="screen active" id="screen-splash">
+    <div class="scroll" style="display:flex;flex-direction:column;">
+      <div class="hero">
+        <div class="brand-mark">درب</div>
+        <div class="eyebrow">تمويل جماعي بالملكية · قطاع السياحة والفعاليات</div>
+        <h2>استثمر في الوجهة قبل أن تصبح وجهة.</h2>
+        <p class="sub">منصة رقمية تتيح للأفراد الاستثمار في المشاريع والمنشآت السياحية والفعاليات القابلة للاستثمار في السعودية، بمبالغ منخفضة نسبيًا، مقابل حصة ملكية حقيقية.</p>
+        <div class="btn-row" style="margin-bottom:10px;">
+          <button class="btn btn-primary" onclick="go('screen-auth'); setAuthStep(0)">إنشاء حساب</button>
+          <button class="btn btn-ghost" onclick="quickLogin()">دخول</button>
+        </div>
+      </div>
+    </div>
+    <div class="disclaimer-strip">نموذج تجريبي لغرض الهاكثون فقط — غير مرخّص من هيئة السوق المالية، ولا يمثل عرض استثمار فعلي.</div>
+  </div>
+
+  <!-- ========== AUTH ========== -->
+  <div class="screen" id="screen-auth">
+    <div class="topbar">
+      <div class="back-btn" onclick="go('screen-splash')">→</div>
+      <h1 id="auth-title">إنشاء حساب</h1>
+    </div>
+    <div class="step-dots" id="auth-dots"></div>
+    <div class="scroll px" style="padding-top:14px;">
+
+      <!-- step 0: role -->
+      <div class="auth-step" data-step="0">
+        <p style="font-size:13px;color:#6B7772;margin-bottom:16px;">اختر الصفة التي ستستخدم بها المنصة</p>
+        <div class="role-card" id="role-investor" onclick="pickRole('investor')">
+          <div class="role-icon">💼</div>
+          <div><h3>مستثمر فرد</h3><p>تصفّح المشاريع السياحية واستثمر بمبالغ بسيطة مقابل حصة ملكية.</p></div>
+        </div>
+        <div class="role-card" id="role-entrepreneur" onclick="pickRole('entrepreneur')">
+          <div class="role-icon">🧭</div>
+          <div><h3>رائد أعمال</h3><p>اطرح مشروعك أو فعاليتك السياحية واحصل على التمويل اللازم.</p></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px;" onclick="nextAuthStep()">التالي</button>
+      </div>
+
+      <!-- step 1: basic info -->
+      <div class="auth-step" data-step="1" style="display:none;">
+        <label class="field-label">الاسم الكامل</label>
+        <input class="field" id="f-name" placeholder="مثال: نورة العتيبي">
+        <label class="field-label">رقم الجوال</label>
+        <input class="field num" placeholder="05xxxxxxxx">
+        <label class="field-label">البريد الإلكتروني</label>
+        <input class="field" placeholder="name@example.com">
+        <button class="btn btn-primary" onclick="nextAuthStep()">التالي</button>
+      </div>
+
+      <!-- step 2: nafath -->
+      <div class="auth-step" data-step="2" style="display:none;">
+        <div class="nafath-box" id="nafath-box">
+          <div style="font-size:26px;margin-bottom:10px;">🪪</div>
+          <h3 style="font-family:'El Messiri';font-size:15px;margin-bottom:6px;">التحقق عبر نفاذ</h3>
+          <p style="font-size:12px;color:#43554D;line-height:1.7;margin-bottom:16px;">للتحقق من هويتك وربط حسابك بمنصة نفاذ الوطنية، أدخل رقم الهوية ثم اعتمد الطلب من تطبيق نفاذ.</p>
+          <input class="field num" placeholder="رقم الهوية / الإقامة" style="margin-bottom:12px;">
+          <button class="btn btn-outline" onclick="startNafath()">إرسال طلب التحقق</button>
+        </div>
+      </div>
+
+      <!-- step 3: entrepreneur CR -->
+      <div class="auth-step" data-step="3" style="display:none;">
+        <label class="field-label">رقم السجل التجاري / ترخيص الفعالية</label>
+        <input class="field num" placeholder="10xxxxxxxx">
+        <label class="field-label">نوع النشاط السياحي</label>
+        <input class="field" placeholder="مثال: فعاليات ترفيهية موسمية">
+        <p style="font-size:11.5px;color:#6B7772;line-height:1.7;margin-bottom:14px;">يُستخدم هذا للتحقق من أن المنشأة أو الفعالية معترف بها رسميًا من الجهات المختصة قبل عرض مشروعك على المستثمرين.</p>
+        <button class="btn btn-primary" onclick="nextAuthStep()">التالي</button>
+      </div>
+
+      <!-- step 4: success -->
+      <div class="auth-step" data-step="4" style="display:none;">
+        <div style="text-align:center;padding-top:20px;">
+          <div class="check-circle">✓</div>
+          <h2 style="font-family:'El Messiri';font-size:18px;margin-bottom:8px;">تم إنشاء حسابك بنجاح</h2>
+          <p style="font-size:13px;color:#6B7772;line-height:1.8;margin-bottom:26px;">هويتك موثّقة عبر نفاذ. يمكنك الآن تصفح الفرص الاستثمارية السياحية أو متابعة مشروعك.</p>
+          <button class="btn btn-primary" onclick="enterApp()">الدخول إلى درب</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========== HOME ========== -->
+  <div class="screen" id="screen-home">
+    <div class="topbar">
+      <h1 style="font-family:'El Messiri';">درب</h1>
+      <div class="icon-btn" onclick="alert('لا إشعارات جديدة')">🔔</div>
+    </div>
+    <div class="scroll">
+      <div class="greet-row">
+        <div class="avatar" id="home-avatar">ن</div>
+        <div>
+          <div class="name" id="home-name">مرحبًا، نورة</div>
+          <div class="hint">استكشف فرص استثمارية في وجهات السعودية</div>
+        </div>
+      </div>
+
+      <div class="howto-card" id="howto-card">
+        <div class="x" onclick="document.getElementById('howto-card').style.display='none'">✕</div>
+        <h4>كيف يعمل درب؟</h4>
+        <div class="howto-steps">
+          <div>تصفّح<br>الفرصة</div>
+          <div>استثمر<br>بحصة</div>
+          <div>تابع<br>الإنجاز</div>
+          <div>احصل على<br>عائدك</div>
+        </div>
+      </div>
+
+      <div class="chips">
+        <div class="chip active" onclick="filterChip(this)">الكل</div>
+        <div class="chip" onclick="filterChip(this)">ترفيه موسمي</div>
+        <div class="chip" onclick="filterChip(this)">ضيافة وإقامة</div>
+        <div class="chip" onclick="filterChip(this)">جولات وفعاليات</div>
+      </div>
+
+      <div class="project-list" id="project-list"></div>
+    </div>
+    <div class="bottomnav">
+      <button class="navbtn active" data-nav="home" onclick="switchNav('home')"><span class="ic">🧭</span>الفرص</button>
+      <button class="navbtn" data-nav="portfolio" onclick="switchNav('portfolio')"><span class="ic">📊</span>محفظتي</button>
+      <button class="navbtn" data-nav="profile" onclick="switchNav('profile')"><span class="ic">👤</span>حسابي</button>
+    </div>
+  </div>
+
+  <!-- ========== PROJECT DETAIL ========== -->
+  <div class="screen" id="screen-project">
+    <div class="scroll" id="project-scroll">
+      <div class="cover-hero" id="project-cover">
+        <div class="topcontrols">
+          <div class="back-btn" style="background:rgba(255,255,255,0.9);" onclick="go('screen-home')">→</div>
+          <div class="back-btn" style="background:rgba(255,255,255,0.9);">♡</div>
+        </div>
+        <h2 id="pd-title">اسم المشروع</h2>
+        <div style="font-size:12px;" id="pd-loc">الموقع</div>
+      </div>
+
+      <div class="detail-tabs">
+        <div class="dtab active" data-dtab="overview" onclick="switchDtab('overview')">نظرة عامة</div>
+        <div class="dtab" data-dtab="progress" onclick="switchDtab('progress')">مسار التمويل</div>
+        <div class="dtab" data-dtab="updates" onclick="switchDtab('updates')">التحديثات</div>
+      </div>
+
+      <div class="px" style="padding-top:6px;">
+        <div class="dpane" data-dpane="overview">
+          <div class="stat-grid">
+            <div class="stat-box"><div class="v num" id="pd-target">0</div><div class="l">المبلغ المستهدف (﷼)</div></div>
+            <div class="stat-box"><div class="v num" id="pd-shares">0</div><div class="l">إجمالي الأسهم</div></div>
+            <div class="stat-box"><div class="v num" id="pd-price">0</div><div class="l">سعر السهم (﷼)</div></div>
+          </div>
+          <div class="section-title">عن المشروع</div>
+          <p style="font-size:13px;color:#43554D;line-height:1.9;" id="pd-desc">—</p>
+          <div class="guide-strip">
+            <div class="ic">🎓</div>
+            <div><b id="pd-guide">—</b><span>مرشد سياحي مرخّص · مشرف ميداني على تنفيذ المشروع</span></div>
+          </div>
+          <div class="pill" style="margin-bottom:16px;">✔ اجتاز الفحص المالي والتقييم الفني</div>
+        </div>
+
+        <div class="dpane" data-dpane="progress" style="display:none;">
+          <div class="section-title">حوكمة صرف الأموال</div>
+          <p style="font-size:12px;color:#6B7772;margin-bottom:4px;line-height:1.7;">لا تُصرف الأموال دفعة واحدة، بل على مراحل مرتبطة بإنجاز فعلي موثّق، من حساب أمانة مخصص للمشروع.</p>
+          <div class="milestone-track">
+            <div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>تحديد<br>الميزانية</p></div>
+            <div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>توقيع<br>العقد</p></div>
+            <div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>إثبات<br>الإنجاز</p></div>
+            <div class="mstep"><div class="line"></div><div class="dot">4</div><p>مراجعة<br>مالية</p></div>
+            <div class="mstep"><div class="line"></div><div class="dot">5</div><p>اعتماد<br>الدفعة</p></div>
+            <div class="mstep"><div class="line"></div><div class="dot">6</div><p>صرف<br>الدفعة</p></div>
+          </div>
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>المخطط (Budget)</span><b class="num">50,000 ﷼</b></div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>المصروف فعليًا (Actual)</span><b class="num">38,000 ﷼</b></div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--clay);"><span>الانحراف (Variance)</span><b class="num">قيد التنفيذ ضمن الحدود</b></div>
+          </div>
+        </div>
+
+        <div class="dpane" data-dpane="updates" style="display:none;">
+          <div class="section-title">تحديثات رائد المشروع</div>
+          <div class="update-item">
+            <div class="thumb" style="background:var(--clay-light);"></div>
+            <div><h4>تجهيز الموقع اكتمل</h4><p>تم تركيب الألعاب المؤقتة وربط الكهرباء. مرفق فواتير الموردين للمراجعة.</p></div>
+          </div>
+          <div class="update-item">
+            <div class="thumb" style="background:var(--juniper-light);"></div>
+            <div><h4>اعتماد المرشد السياحي</h4><p>زيارة ميدانية من المرشد المشرف للتأكد من مطابقة المواصفات التشغيلية.</p></div>
+          </div>
+          <div class="update-item" style="border-bottom:none;">
+            <div class="thumb" style="background:var(--gold);"></div>
+            <div><h4>توقيع اتفاقية الشراكة</h4><p>تم توقيع العقد الإلكتروني الملزم بين رائد المشروع والمستثمرين.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sticky-invest">
+      <div class="amt"><b id="pd-raised" class="num">0 ﷼</b><span id="pd-daysleft">—</span></div>
+      <button class="btn btn-primary" style="width:auto;padding:14px 26px;" onclick="openInvest()">استثمر الآن</button>
+    </div>
+  </div>
+
+  <!-- ========== INVEST ========== -->
+  <div class="screen" id="screen-invest">
+    <div class="topbar">
+      <div class="back-btn" onclick="go('screen-project')">→</div>
+      <h1>تحديد الاستثمار</h1>
+    </div>
+    <div class="scroll px">
+      <p style="font-size:12.5px;color:#6B7772;margin-top:12px;">كل سهم يمثل حصة ملكية حقيقية في المشروع، بسعر ثابت <span class="num" id="inv-price">1,000</span> ﷼ للسهم.</p>
+      <div class="stepper-row">
+        <div class="stepper-btn" onclick="changeShares(1)">+</div>
+        <div class="stepper-val"><div class="n num" id="inv-shares">1</div><div class="l">سهم</div></div>
+        <div class="stepper-btn" onclick="changeShares(-1)">−</div>
+      </div>
+      <div class="invest-summary-row"><span>عدد الأسهم</span><b class="num" id="s-shares">1</b></div>
+      <div class="invest-summary-row"><span>سعر السهم</span><b class="num" id="s-price">1,000 ﷼</b></div>
+      <div class="invest-summary-row"><span>إجمالي مبلغ الاستثمار</span><b class="num" id="s-total">1,000 ﷼</b></div>
+      <div class="agree-row">
+        <input type="checkbox" id="agree-check">
+        <label for="agree-check">أوافق على اتفاقية الشراكة الرقمية الملزمة، وأدرك أن الاستثمار في هذه المشاريع ينطوي على مخاطر، ويُحتمل خسارة المبلغ المستثمر جزئيًا أو كليًا.</label>
+      </div>
+      <button class="btn btn-primary" style="margin-bottom:20px;" onclick="confirmInvest()">تأكيد الاستثمار</button>
+    </div>
+  </div>
+
+  <!-- ========== INVEST SUCCESS ========== -->
+  <div class="screen" id="screen-invest-success">
+    <div class="success-wrap">
+      <div class="check-circle">✓</div>
+      <h2>تم تنفيذ استثمارك</h2>
+      <p>حُوّل مبلغك إلى حساب الأمانة الخاص بالمشروع، وسيُصرف لرائد المشروع على مراحل مرتبطة بإنجاز موثّق. ستصلك التحديثات أولًا بأول.</p>
+      <div class="ref-box">رقم مرجع العقد الرقمي: <b class="num" id="ref-num">DRB-48219</b></div>
+      <button class="btn btn-primary" onclick="switchNav('portfolio'); go('screen-home')">عرض محفظتي</button>
+    </div>
+  </div>
+
+  <!-- ========== PORTFOLIO ========== -->
+  <div class="screen" id="screen-portfolio">
+    <div class="topbar"><h1 style="font-family:'El Messiri';">محفظتي</h1></div>
+    <div class="scroll">
+      <div class="kpi-row">
+        <div class="kpi"><div class="v num" id="kpi-total">0 ﷼</div><div class="l">إجمالي المستثمر</div></div>
+        <div class="kpi"><div class="v num" id="kpi-count">0</div><div class="l">عدد المشاريع</div></div>
+        <div class="kpi"><div class="v">قيد المتابعة</div><div class="l">الحالة العامة</div></div>
+      </div>
+      <div class="section-title px">مشاريعي المستثمَرة</div>
+      <div class="px" id="portfolio-list"></div>
+      <div class="px" id="portfolio-empty" style="display:none;padding-top:8px;">
+        <div class="card" style="text-align:center;">
+          <p style="font-size:13px;color:#6B7772;margin-bottom:10px;">لم تستثمر في أي مشروع بعد.</p>
+          <button class="btn btn-outline" onclick="switchNav('home')">تصفّح الفرص</button>
+        </div>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+    <div class="bottomnav">
+      <button class="navbtn" data-nav="home" onclick="switchNav('home')"><span class="ic">🧭</span>الفرص</button>
+      <button class="navbtn active" data-nav="portfolio" onclick="switchNav('portfolio')"><span class="ic">📊</span>محفظتي</button>
+      <button class="navbtn" data-nav="profile" onclick="switchNav('profile')"><span class="ic">👤</span>حسابي</button>
+    </div>
+  </div>
+
+  <!-- ========== PROFILE ========== -->
+  <div class="screen" id="screen-profile">
+    <div class="scroll">
+      <div class="profile-head">
+        <div class="avatar" id="profile-avatar">ن</div>
+        <h2 id="profile-name">نورة العتيبي</h2>
+        <div class="verified">✔ موثّق عبر نفاذ · <span id="profile-role">مستثمر فرد</span></div>
+      </div>
+      <div class="px">
+        <div class="menu-item"><div class="ic">🏦</div><span>الحساب البنكي</span><div class="arrow">‹</div></div>
+        <div class="menu-item"><div class="ic">📄</div><span>الاتفاقيات الموقّعة</span><div class="arrow">‹</div></div>
+        <div class="menu-item" id="entrepreneur-menu" style="display:none;" onclick="go('screen-submit')"><div class="ic">🧭</div><span>تقديم مشروع جديد</span><div class="arrow">‹</div></div>
+        <div class="menu-item"><div class="ic">💬</div><span>اسأل درب — استشارة مالية</span><div class="arrow">‹</div></div>
+        <div class="menu-item"><div class="ic">⚙️</div><span>إعدادات الحساب</span><div class="arrow">‹</div></div>
+        <div class="menu-item" style="border-bottom:none;" onclick="go('screen-splash')"><div class="ic">🚪</div><span>تسجيل الخروج</span><div class="arrow">‹</div></div>
+      </div>
+    </div>
+    <div class="bottomnav">
+      <button class="navbtn" data-nav="home" onclick="switchNav('home')"><span class="ic">🧭</span>الفرص</button>
+      <button class="navbtn" data-nav="portfolio" onclick="switchNav('portfolio')"><span class="ic">📊</span>محفظتي</button>
+      <button class="navbtn active" data-nav="profile" onclick="switchNav('profile')"><span class="ic">👤</span>حسابي</button>
+    </div>
+  </div>
+
+  <!-- ========== SUBMIT PROJECT ========== -->
+  <div class="screen" id="screen-submit">
+    <div class="topbar">
+      <div class="back-btn" onclick="go('screen-profile')">→</div>
+      <h1>تقديم مشروع سياحي</h1>
+    </div>
+    <div class="scroll px" style="padding-top:14px;">
+      <label class="field-label">اسم المشروع أو الفعالية</label>
+      <input class="field" placeholder="مثال: واحة أبها الترفيهية">
+      <label class="field-label">الموقع</label>
+      <input class="field" placeholder="المدينة / الحي">
+      <label class="field-label">وصف مختصر ودراسة الجدوى</label>
+      <textarea class="field" placeholder="فكرة المشروع، الفئة المستهدفة، الجدول الزمني..."></textarea>
+      <label class="field-label">المبلغ المطلوب (﷼)</label>
+      <input class="field num" id="sub-amount" placeholder="50000" oninput="calcSubShares()">
+      <label class="field-label">سعر السهم المقترح (﷼)</label>
+      <input class="field num" id="sub-price" placeholder="1000" value="1000" oninput="calcSubShares()">
+      <div class="pill gold" id="sub-shares-out" style="margin-bottom:16px;">عدد الأسهم المقترح: —</div>
+      <label class="field-label">دراسة الجدوى (ملف)</label>
+      <div class="upload-box">اسحب الملف هنا أو اضغط للرفع<br>PDF / Excel</div>
+
+      <div class="section-title">بعد الإرسال، سيمر مشروعك بـ</div>
+      <div class="review-mini">
+        <div>فحص مالي</div>
+        <div>تقييم فني</div>
+        <div>ربط بمرشد سياحي</div>
+      </div>
+      <button class="btn btn-primary" style="margin:20px 0;" onclick="submitProject()">إرسال للمراجعة</button>
+    </div>
+  </div>
+
+  <!-- ========== SUBMIT SUCCESS ========== -->
+  <div class="screen" id="screen-submit-success">
+    <div class="success-wrap">
+      <div class="check-circle">✓</div>
+      <h2>تم استلام مشروعك</h2>
+      <p>سيقوم فريق المراجعة بالتحقق من دراسة الجدوى والسجل التجاري وربط مشروعك بمرشد سياحي مرخّص. سنُعلمك بمجرد اعتماد الطرح خلال 3 أيام عمل.</p>
+      <button class="btn btn-primary" onclick="go('screen-profile')">العودة لحسابي</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const projects = [
+  {
+    id:1, name:'واحة أبها الترفيهية', location:'أبها، عسير', sector:'ترفيه موسمي',
+    cover:'linear-gradient(135deg,#2F5D50,#123027)',
+    target:50000, raised:38000, shares:50, price:1000, daysLeft:6,
+    guide:'المرشد خالد المالكي',
+    desc:'منطقة ألعاب وترفيه موسمية مصغّرة في إحدى وجهات أبها السياحية خلال فترة الصيف، تشمل ألعابًا مؤقتة وفعاليات عائلية مصممة لموسم الذروة السياحي في المنطقة.'
+  },
+  {
+    id:2, name:'مخيم نجوم العلا', location:'العلا، المدينة المنورة', sector:'ضيافة وإقامة',
+    cover:'linear-gradient(135deg,#C1652F,#7C3E19)',
+    target:120000, raised:64200, shares:120, price:1000, daysLeft:14,
+    guide:'المرشدة سارة الحربي',
+    desc:'مخيم فاخر مؤقت بإطلالة على المدائن الصالحة، يستهدف موسم الشتاء في العلا بتجربة مبيت تحت النجوم مع أنشطة سياحية مصاحبة.'
+  },
+  {
+    id:3, name:'جولات كورنيش جدة البحرية', location:'جدة، مكة المكرمة', sector:'جولات وفعاليات',
+    cover:'linear-gradient(135deg,#3E7767,#1B2A28)',
+    target:80000, raised:80000, shares:80, price:1000, daysLeft:0, funded:true,
+    guide:'المرشد عمر الزهراني',
+    desc:'باقة جولات بحرية مسائية على كورنيش جدة بقوارب مستأجرة موسميًا، موجهة للعائلات والسياح خلال موسم جدة.'
+  }
+];
+
+let currentRole = 'investor';
+let currentProject = null;
+let investShares = 1;
+let userInvestments = []; // {projectId, shares, total}
+let userName = 'نورة العتيبي';
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ---------- Auth flow ---------- */
+const authSteps = ()=>document.querySelectorAll('.auth-step');
+let authIndex = 0;
+function setAuthStep(i){
+  authIndex = i;
+  authSteps().forEach(s=>s.style.display = (+s.dataset.step===i) ? 'block' : 'none');
+  const titles = ['نوع الحساب','بياناتك الأساسية','التحقق عبر نفاذ', currentRole==='entrepreneur' ? 'بيانات المنشأة' : '', 'تم بنجاح'];
+  document.getElementById('auth-title').textContent = titles[i] || 'إنشاء حساب';
+  const dots = document.getElementById('auth-dots');
+  const total = currentRole==='entrepreneur' ? 5 : 4;
+  dots.innerHTML='';
+  for(let d=0; d<total; d++){
+    const sp = document.createElement('span');
+    if(d < mapVisualStep(i)) sp.className='done';
+    dots.appendChild(sp);
+  }
+}
+function mapVisualStep(i){
+  if(currentRole==='entrepreneur') return i+1;
+  // investor skips step 3 (index 3), so map 4->3
+  return i===4 ? 4 : i+1;
+}
+function pickRole(role){
+  currentRole = role;
+  document.getElementById('role-investor').classList.toggle('selected', role==='investor');
+  document.getElementById('role-entrepreneur').classList.toggle('selected', role==='entrepreneur');
+}
+function nextAuthStep(){
+  if(authIndex===1){
+    const n = document.getElementById('f-name').value.trim();
+    if(n) userName = n;
+  }
+  if(authIndex===2){ setAuthStep(currentRole==='entrepreneur' ? 3 : 4); return; }
+  setAuthStep(authIndex+1);
+}
+function startNafath(){
+  const box = document.getElementById('nafath-box');
+  box.innerHTML = '<div class="spinner"></div><p style="font-size:13px;color:#43554D;">بانتظار الموافقة من تطبيق نفاذ...</p>';
+  setTimeout(()=>{ nextAuthStep(); }, 1400);
+}
+function enterApp(){
+  updateProfileUI();
+  renderProjects();
+  go('screen-home');
+}
+function quickLogin(){
+  updateProfileUI();
+  renderProjects();
+  go('screen-home');
+}
+function updateProfileUI(){
+  const initials = userName.trim().charAt(0) || 'د';
+  document.getElementById('home-avatar').textContent = initials;
+  document.getElementById('home-name').textContent = 'مرحبًا، ' + userName.split(' ')[0];
+  document.getElementById('profile-avatar').textContent = initials;
+  document.getElementById('profile-name').textContent = userName;
+  document.getElementById('profile-role').textContent = currentRole==='entrepreneur' ? 'رائد أعمال' : 'مستثمر فرد';
+  document.getElementById('entrepreneur-menu').style.display = currentRole==='entrepreneur' ? 'flex' : 'none';
+}
+
+/* ---------- Home / projects ---------- */
+function fmt(n){ return Number(n).toLocaleString('en-US'); }
+
+function renderProjects(){
+  const list = document.getElementById('project-list');
+  list.innerHTML='';
+  projects.forEach(p=>{
+    const pct = Math.round((p.raised/p.target)*100);
+    const card = document.createElement('div');
+    card.className='project-card';
+    card.onclick = ()=>openProject(p.id);
+    card.innerHTML = `
+      <div class="project-cover" style="background:${p.cover}">
+        <div class="tags"><span class="badge">${p.sector}</span></div>
+      </div>
+      <div class="project-body">
+        <h3>${p.name}</h3>
+        <div class="loc">${p.location}</div>
+        <div class="funding-row">
+          <div class="ring" style="background:conic-gradient(var(--clay) ${pct}%, var(--fog) 0)">
+            <div class="ring-inner">${pct}%</div>
+          </div>
+          <div class="fund-stats">
+            <div class="raised-line"><span>تم جمع</span><b class="num">${fmt(p.raised)} ﷼</b></div>
+            <div>${p.funded ? 'اكتمل التمويل' : 'متبقٍ ' + p.daysLeft + ' أيام'}</div>
+          </div>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+function filterChip(el){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ---------- Bottom nav ---------- */
+function switchNav(name){
+  go('screen-'+name);
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.nav===name));
+  if(name==='portfolio') renderPortfolio();
+}
+
+/* ---------- Project detail ---------- */
+function openProject(id){
+  currentProject = projects.find(p=>p.id===id);
+  const p = currentProject;
+  document.getElementById('project-cover').style.background = p.cover;
+  document.getElementById('pd-title').textContent = p.name;
+  document.getElementById('pd-loc').textContent = p.location;
+  document.getElementById('pd-target').textContent = fmt(p.target);
+  document.getElementById('pd-shares').textContent = fmt(p.shares);
+  document.getElementById('pd-price').textContent = fmt(p.price);
+  document.getElementById('pd-desc').textContent = p.desc;
+  document.getElementById('pd-guide').textContent = p.guide;
+  document.getElementById('pd-raised').textContent = fmt(p.raised) + ' ﷼ من ' + fmt(p.target) + ' ﷼';
+  document.getElementById('pd-daysleft').textContent = p.funded ? 'اكتمل التمويل' : 'متبقٍ ' + p.daysLeft + ' أيام على إغلاق الطرح';
+  switchDtab('overview');
+  document.getElementById('project-scroll').scrollTop = 0;
+  go('screen-project');
+}
+function switchDtab(name){
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.toggle('active', t.dataset.dtab===name));
+  document.querySelectorAll('.dpane').forEach(p=>p.style.display = p.dataset.dpane===name ? 'block' : 'none');
+}
+
+/* ---------- Invest flow ---------- */
+function openInvest(){
+  investShares = 1;
+  document.getElementById('inv-price').textContent = fmt(currentProject.price);
+  updateInvestUI();
+  go('screen-invest');
+}
+function changeShares(dir){
+  const remaining = currentProject.shares - Math.round((currentProject.raised/currentProject.price));
+  investShares = Math.max(1, Math.min(investShares+dir, Math.max(remaining,1)));
+  updateInvestUI();
+}
+function updateInvestUI(){
+  document.getElementById('inv-shares').textContent = investShares;
+  document.getElementById('s-shares').textContent = investShares;
+  document.getElementById('s-price').textContent = fmt(currentProject.price) + ' ﷼';
+  document.getElementById('s-total').textContent = fmt(investShares*currentProject.price) + ' ﷼';
+}
+function confirmInvest(){
+  if(!document.getElementById('agree-check').checked){
+    alert('يرجى الموافقة على اتفاقية الشراكة الرقمية أولًا');
+    return;
+  }
+  userInvestments.push({projectId: currentProject.id, shares: investShares, total: investShares*currentProject.price});
+  currentProject.raised = Math.min(currentProject.target, currentProject.raised + investShares*currentProject.price);
+  document.getElementById('ref-num').textContent = 'DRB-' + Math.floor(40000+Math.random()*9000);
+  renderProjects();
+  go('screen-invest-success');
+}
+
+/* ---------- Portfolio ---------- */
+function renderPortfolio(){
+  const list = document.getElementById('portfolio-list');
+  const empty = document.getElementById('portfolio-empty');
+  list.innerHTML='';
+  if(userInvestments.length===0){
+    empty.style.display='block';
+    document.getElementById('kpi-total').textContent='0 ﷼';
+    document.getElementById('kpi-count').textContent='0';
+    return;
+  }
+  empty.style.display='none';
+  let total=0;
+  const byProject = {};
+  userInvestments.forEach(inv=>{
+    total += inv.total;
+    byProject[inv.projectId] = (byProject[inv.projectId]||0) + inv.total;
+  });
+  document.getElementById('kpi-total').textContent = fmt(total) + ' ﷼';
+  document.getElementById('kpi-count').textContent = Object.keys(byProject).length;
+  Object.keys(byProject).forEach(pid=>{
+    const p = projects.find(x=>x.id==pid);
+    const pct = Math.round((p.raised/p.target)*100);
+    const el = document.createElement('div');
+    el.className='inv-item';
+    el.onclick = ()=>openProject(p.id);
+    el.innerHTML = `
+      <div class="inv-cover" style="background:${p.cover}"></div>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h4>${p.name}</h4>
+          <span class="status-tag ${p.funded?'funded':'progress'}">${p.funded?'مكتمل التمويل':'قيد التنفيذ'}</span>
+        </div>
+        <div style="font-size:11px;color:#6B7772;">استثمارك: <span class="num">${fmt(byProject[pid])} ﷼</span></div>
+        <div class="bar"><div style="width:${pct}%"></div></div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+/* ---------- Submit project ---------- */
+function calcSubShares(){
+  const amt = parseFloat(document.getElementById('sub-amount').value)||0;
+  const price = parseFloat(document.getElementById('sub-price').value)||0;
+  const out = document.getElementById('sub-shares-out');
+  out.textContent = price>0 ? 'عدد الأسهم المقترح: ' + Math.round(amt/price) : 'عدد الأسهم المقترح: —';
+}
+function submitProject(){
+  go('screen-submit-success');
+}
+
+/* init */
+updateProfileUI();
+renderProjects();
+</script>
+</body>
+</html>
