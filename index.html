@@ -285,6 +285,8 @@
     .newsletter-row { display:flex; gap:8px; margin-top:12px; position:relative; z-index:1; }
     .newsletter-row .btn { flex:1; padding:10px 8px; font-size:11px; }
     .newsletter-status { margin-top:9px; font-size:10.5px; color:#DCE8E2; position:relative; z-index:1; }
+    .newsletter-send-btn { margin-top:10px; position:relative; z-index:1; background:var(--clay); color:#fff; }
+    .newsletter-send-btn:disabled { opacity:.65; cursor:not-allowed; }
     .newsletter-preview { background:#fff; border:1px solid var(--fog); border-radius:16px; padding:14px 16px; margin:0 18px 16px; }
     .newsletter-preview .title { font-family:'El Messiri'; font-weight:700; font-size:15px; margin-bottom:5px; }
     .newsletter-preview .meta { font-size:10px; color:#6B7772; margin-bottom:10px; }
@@ -523,7 +525,11 @@
       <div class="newsletter-card">
         <h3>📰 النشرة الأسبوعية للاستثمار السياحي</h3>
         <p>ملخص أسبوعي يصلك إلى بريدك الإلكتروني، وتستلم آخر نشرة فورًا عند الاشتراك، ثم تصلك النشرة الجديدة أسبوعيًا: أبرز الفرص، أخبار القطاع، والمؤشرات المهمة.</p>
-        <div class="newsletter-row"><button class="btn btn-outline" style="background:#fff;color:var(--juniper);border:none;" onclick="previewNewsletter()">معاينة النشرة</button><button class="btn btn-outline" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);" onclick="toggleNewsletterSubscription()">تفضيلات البريد</button></div>
+        <div class="newsletter-row">
+          <button class="btn btn-outline" style="background:#fff;color:var(--juniper);border:none;" onclick="previewNewsletter()">معاينة النشرة</button>
+          <button class="btn btn-outline" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);" onclick="toggleNewsletterSubscription()">تفضيلات البريد</button>
+        </div>
+        <button id="send-newsletter-now-btn" class="btn btn-primary newsletter-send-btn" onclick="sendNewsletterNow()">📩 إرسال النشرة الآن</button>
         <div class="newsletter-status" id="newsletter-status">عند تفعيل النشرة، تصلك أحدث نشرة فورًا، ثم تصلك نشرة جديدة أسبوعيًا.</div>
       </div>
       <div id="newsletter-preview-wrap" style="display:none;"></div>
@@ -788,6 +794,52 @@
       showToast('📰 تم تحميل معاينة النشرة');
     } catch(e) {
       showToast('⚠️ تعذر تحميل النشرة حالياً');
+    }
+  }
+
+  async function sendNewsletterNow() {
+    if (!userEmail) {
+      showToast('أكمل بيانات الحساب أولاً');
+      return;
+    }
+
+    if (!newsletterEnabled) {
+      showToast('فعّل النشرة الأسبوعية أولاً');
+      return;
+    }
+
+    const button = document.getElementById('send-newsletter-now-btn');
+    if (!button) return;
+
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = '⏳ جاري الإرسال...';
+
+    try {
+      const response = await fetch(`${AI_API_URL}/newsletter/send-now`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.status !== 'success') {
+        throw new Error(data.response || 'تعذر إرسال النشرة');
+      }
+
+      const status = document.getElementById('newsletter-status');
+      if (status) {
+        status.textContent = `✓ تم إرسال النشرة فورًا إلى ${userEmail}`;
+      }
+
+      showToast('📩 تم إرسال النشرة إلى بريدك');
+    } catch (e) {
+      console.error('Immediate newsletter error:', e);
+      showToast('⚠️ تعذر إرسال النشرة حالياً');
+    } finally {
+      button.disabled = false;
+      button.textContent = originalText;
     }
   }
 
