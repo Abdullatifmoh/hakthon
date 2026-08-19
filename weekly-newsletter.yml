@@ -1,9 +1,9 @@
-name: Tourism Investment Newsletter
+name: Weekly Tourism Investment Newsletter
 
 on:
   schedule:
-    # Every Sunday at 08:00 UTC (11:00 AM Saudi Arabia time)
-    - cron: '0 8 * * 0'
+    # Every Sunday at 07:00 UTC (10:00 AM Saudi Arabia)
+    - cron: '0 7 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -12,10 +12,8 @@ jobs:
     steps:
       - name: Send weekly newsletter
         env:
-          NEWSLETTER_URL: https://saudi-tourism-investment-ai.onrender.com/api/newsletter/send-weekly
+          NEWSLETTER_API: ${{ secrets.NEWSLETTER_API }}
           NEWSLETTER_ADMIN_TOKEN: ${{ secrets.NEWSLETTER_ADMIN_TOKEN }}
         run: |
-          curl --fail --show-error --silent \
-            -X POST "$NEWSLETTER_URL" \
-            -H "X-Newsletter-Admin-Token: $NEWSLETTER_ADMIN_TOKEN" \
-            -H "Content-Type: application/json"
+          curl -f -X POST "$NEWSLETTER_API/api/newsletter/send-weekly" \
+            -H "X-Newsletter-Admin-Token: $NEWSLETTER_ADMIN_TOKEN"
