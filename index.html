@@ -276,7 +276,21 @@
     .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
     .empty-state h3 { font-family: 'El Messiri'; font-size: 18px; color: var(--ink); margin-bottom: 8px; }
     .empty-state p { font-size: 13px; line-height: 1.7; }
-  </style>
+  
+    /* ===== Tourism Investment Newsletter ===== */
+    .newsletter-card { background: linear-gradient(145deg,#2F5D50,#1F4036); color:#fff; border-radius:18px; padding:18px; margin:0 18px 16px; position:relative; overflow:hidden; }
+    .newsletter-card:after { content:""; position:absolute; width:110px; height:110px; border-radius:50%; background:rgba(255,255,255,.07); left:-35px; top:-35px; }
+    .newsletter-card h3 { font-family:'El Messiri'; font-size:17px; margin-bottom:6px; position:relative; z-index:1; }
+    .newsletter-card p { font-size:11.5px; line-height:1.8; color:#DCE8E2; position:relative; z-index:1; }
+    .newsletter-row { display:flex; gap:8px; margin-top:12px; position:relative; z-index:1; }
+    .newsletter-row .btn { flex:1; padding:10px 8px; font-size:11px; }
+    .newsletter-status { margin-top:9px; font-size:10.5px; color:#DCE8E2; position:relative; z-index:1; }
+    .newsletter-preview { background:#fff; border:1px solid var(--fog); border-radius:16px; padding:14px 16px; margin:0 18px 16px; }
+    .newsletter-preview .title { font-family:'El Messiri'; font-weight:700; font-size:15px; margin-bottom:5px; }
+    .newsletter-preview .meta { font-size:10px; color:#6B7772; margin-bottom:10px; }
+    .newsletter-item { padding:9px 0; border-top:1px solid var(--fog); font-size:11.5px; line-height:1.7; }
+
+</style>
 </head>
 <body>
 <div class="iphone-frame">
@@ -316,7 +330,8 @@
       <div class="auth-step" data-step="1" style="display:none;">
         <label class="field-label">الاسم الكامل</label><input class="field" id="f-name" placeholder="مثال: عبداللطيف الرشاده">
         <label class="field-label">رقم الجوال</label><input class="field num" placeholder="05xxxxxxxx">
-        <label class="field-label">البريد الإلكتروني</label><input class="field" placeholder="name@example.com">
+        <label class="field-label">البريد الإلكتروني</label><input class="field" id="f-email" type="email" placeholder="name@example.com">
+        <label style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:#43554D;margin:-4px 0 12px;"><input id="f-newsletter" type="checkbox" checked style="accent-color:var(--juniper);"> أرغب باستلام النشرة الأسبوعية للاستثمار السياحي</label>
         <button class="btn btn-primary" onclick="nextAuthStep()">التالي</button>
       </div>
       <div class="auth-step" data-step="2" style="display:none;">
@@ -395,7 +410,7 @@
           <div class="pill" style="margin-bottom:16px;">✔ اجتاز الفحص المالي والتقييم الفني</div>
         </div>
         <div class="dpane" data-dpane="progress" style="display:none;">
-          <div class="section-title">حوكمة صرف الأموال</div><p style="font-size:12px;color:#6B7772;margin-bottom:4px;line-height:1.7;">لا تُصرف الأموال دفعة واحدة، بل على مراحل مرتبطة بإنجاز فعلي موثّق، من حساب أمانة مخصص للمشروع.</p>
+          <div class="section-title">حوكمة وإدارة أموال المستثمرين</div><p style="font-size:12px;color:#6B7772;margin-bottom:4px;line-height:1.7;">لا تُصرف الأموال دفعة واحدة، بل على مراحل مرتبطة بإنجاز فعلي موثّق، من حساب أمانة مخصص للمشروع.</p>
           <div class="milestone-track"><div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>تحديد<br>الميزانية</p></div><div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>توقيع<br>العقد</p></div><div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>إثبات<br>الإنجاز</p></div><div class="mstep"><div class="line"></div><div class="dot">4</div><p>مراجعة<br>مالية</p></div><div class="mstep"><div class="line"></div><div class="dot">5</div><p>اعتماد<br>الدفعة</p></div><div class="mstep"><div class="line"></div><div class="dot">6</div><p>صرف<br>الدفعة</p></div></div>
           <div class="card" style="margin-bottom:16px;">
             <div style="font-family:'El Messiri';font-weight:700;font-size:14px;margin-bottom:10px;color:var(--ink);">مؤشرات الأداء المالي</div>
@@ -505,6 +520,13 @@
           <b style="color:var(--ink);">حقوقك كمستثمر:</b> يحق لك الحصول على أرباح سنوية وفق النسبة المئوية المحددة في الاتفاقية، والاطلاع على التقارير المالية الدورية، والتصويت على القرارات الجوهرية للمشروع.
         </div>
       </div></div>
+      <div class="newsletter-card">
+        <h3>📰 النشرة الأسبوعية للاستثمار السياحي</h3>
+        <p>ملخص أسبوعي يصل إلى بريدك الإلكتروني: أبرز الفرص الجديدة، أخبار القطاع، المؤشرات والأرقام المهمة، والتحديثات التي قد تؤثر على المستثمر.</p>
+        <div class="newsletter-row"><button class="btn btn-outline" style="background:#fff;color:var(--juniper);border:none;" onclick="previewNewsletter()">معاينة النشرة</button><button class="btn btn-outline" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);" onclick="toggleNewsletterSubscription()">تفضيلات البريد</button></div>
+        <div class="newsletter-status" id="newsletter-status">يتم حفظ بريدك ضمن قائمة النشرة عند إنشاء الحساب.</div>
+      </div>
+      <div id="newsletter-preview-wrap" style="display:none;"></div>
       <div class="section-title px">⚙️ الإعدادات</div>
       <div class="px">
         <div class="menu-item" onclick="showToast('🏦 جاري فتح الحساب البنكي...')"><div class="ic">🏦</div><span>الحساب البنكي</span><div class="arrow">‹</div></div>
@@ -600,6 +622,8 @@
   let investShares = 1;
   let userInvestments = [];
   let userName = 'عبداللطيف الرشاده';
+  let userEmail = '';
+  let newsletterEnabled = true;
   let howtoIndex = 0;
   let chatHistory = [];
   const howtoData = [
@@ -708,6 +732,83 @@
     }, 400);
   }
 
+  // ========== NEWSLETTER / ACCOUNT API ==========
+  async function saveUserAccount() {
+    if (!userEmail) {
+      showToast('يرجى إدخال البريد الإلكتروني أولاً');
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${AI_API_URL}/users/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: userName,
+          email: userEmail,
+          newsletter: newsletterEnabled,
+          role: currentRole
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.status !== 'success') {
+        throw new Error(data.response || 'فشل حفظ الحساب');
+      }
+
+      const status = document.getElementById('newsletter-status');
+      if (status) {
+        status.textContent = data.newsletter_subscribed
+          ? '✓ تم حفظ بريدك والاشتراك في النشرة الأسبوعية.'
+          : '✓ تم حفظ الحساب، والنشرة الأسبوعية غير مفعلة.';
+      }
+
+      showToast(data.newsletter_subscribed
+        ? '✅ تم حفظ الحساب والاشتراك في النشرة'
+        : '✅ تم حفظ الحساب');
+
+      return true;
+    } catch (e) {
+      console.error('Account API error:', e);
+      showToast('⚠️ تعذر حفظ الحساب. تأكد من اتصال الخادم.');
+      return false;
+    }
+  }
+
+  async function previewNewsletter() {
+    try {
+      const response = await fetch(`${AI_API_URL}/newsletter/latest`);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.response || 'newsletter error');
+      const wrap = document.getElementById('newsletter-preview-wrap');
+      const items = (data.issue.items || []).map(x => `<div class="newsletter-item"><b>${x.title}</b><br>${x.text}</div>`).join('');
+      wrap.innerHTML = `<div class="newsletter-preview"><div class="title">${data.issue.title}</div><div class="meta">${data.issue.week_label}</div>${items}</div>`;
+      wrap.style.display = 'block';
+      showToast('📰 تم تحميل معاينة النشرة');
+    } catch(e) {
+      showToast('⚠️ تعذر تحميل النشرة حالياً');
+    }
+  }
+
+  async function toggleNewsletterSubscription() {
+    if (!userEmail) { showToast('أكمل بيانات الحساب أولاً'); return; }
+    newsletterEnabled = !newsletterEnabled;
+    try {
+      const response = await fetch(`${AI_API_URL}/newsletter/subscribe`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:userEmail,name:userName,enabled:newsletterEnabled,role:currentRole})
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.response || 'subscription error');
+      document.getElementById('newsletter-status').textContent = newsletterEnabled ? '✓ النشرة الأسبوعية مفعلة.' : 'تم إيقاف النشرة الأسبوعية.';
+      showToast(newsletterEnabled ? '📩 تم تفعيل النشرة' : '🔕 تم إيقاف النشرة');
+    } catch(e) {
+      newsletterEnabled = !newsletterEnabled;
+      showToast('⚠️ تعذر تحديث تفضيل البريد');
+    }
+  }
+
   // ========== UI HELPERS ==========
   let toastTimeout;
   function showToast(msg) {
@@ -765,7 +866,14 @@
   function nextAuthStep() {
     if (authIndex === 1) {
       const n = document.getElementById('f-name').value.trim();
+      const e = document.getElementById('f-email').value.trim();
+      userEmail = e;
+      newsletterEnabled = document.getElementById('f-newsletter').checked;
       if (n) userName = n;
+      if (!e || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+        showToast('يرجى إدخال بريد إلكتروني صحيح');
+        return;
+      }
     }
     if (authIndex === 2) {
       setAuthStep(currentRole === 'entrepreneur' ? 3 : 4);
@@ -780,8 +888,19 @@
     setTimeout(() => { nextAuthStep(); }, 1400);
   }
 
-  function enterApp() { updateProfileUI(); renderProjects(); go('screen-home'); }
-  function quickLogin() { updateProfileUI(); renderProjects(); go('screen-home'); }
+  async function enterApp() {
+    const saved = await saveUserAccount();
+    if (!saved) return;
+    updateProfileUI();
+    renderProjects();
+    go('screen-home');
+  }
+
+  async function quickLogin() {
+    updateProfileUI();
+    renderProjects();
+    go('screen-home');
+  }
 
   function updateProfileUI() {
     const initials = userName.trim().charAt(0) || 'د';
@@ -791,6 +910,8 @@
     document.getElementById('profile-name').textContent = userName;
     document.getElementById('profile-role').textContent = currentRole === 'entrepreneur' ? 'رائد أعمال' : 'مستثمر فرد';
     document.getElementById('entrepreneur-menu').style.display = currentRole === 'entrepreneur' ? 'flex' : 'none';
+    const ns = document.getElementById('newsletter-status');
+    if (ns && userEmail) ns.textContent = newsletterEnabled ? '✓ ' + userEmail + ' — النشرة الأسبوعية مفعلة.' : userEmail + ' — النشرة الأسبوعية متوقفة.';
   }
 
   function renderProjects() {
