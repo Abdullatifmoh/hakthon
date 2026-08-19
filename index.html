@@ -344,7 +344,7 @@
         <button class="btn btn-primary" onclick="nextAuthStep()">التالي</button>
       </div>
       <div class="auth-step" data-step="4" style="display:none;">
-        <div style="text-align:center;padding-top:20px;"><div class="check-circle">✓</div><h2 style="font-family:'El Messiri';font-size:18px;margin-bottom:8px;">تم إنشاء حسابك بنجاح</h2><p style="font-size:13px;color:#6B7772;line-height:1.8;margin-bottom:26px;">هويتك موثّقة عبر نفاذ. يمكنك الآن تصفح الفرص الاستثمارية السياحية أو متابعة مشروعك.</p><button class="btn btn-primary" onclick="enterApp()">الدخول إلى درب</button></div>
+        <div style="text-align:center;padding-top:20px;"><div class="check-circle">✓</div><h2 style="font-family:'El Messiri';font-size:18px;margin-bottom:8px;">تم إنشاء حسابك بنجاح</h2><p style="font-size:13px;color:#6B7772;line-height:1.8;margin-bottom:26px;">هويتك موثّقة عبر نفاذ. يمكنك الآن تصفح الفرص الاستثمارية السياحية أو متابعة مشروعك.</p><button class="btn btn-primary" onclick="enterApp()">الدخول إلى المنصة</button></div>
       </div>
     </div>
   </div>
@@ -522,9 +522,9 @@
       </div></div>
       <div class="newsletter-card">
         <h3>📰 النشرة الأسبوعية للاستثمار السياحي</h3>
-        <p>ملخص أسبوعي يصل إلى بريدك الإلكتروني: أبرز الفرص الجديدة، أخبار القطاع، المؤشرات والأرقام المهمة، والتحديثات التي قد تؤثر على المستثمر.</p>
+        <p>ملخص أسبوعي يصلك إلى بريدك الإلكتروني، وتستلم آخر نشرة فورًا عند الاشتراك، ثم تصلك النشرة الجديدة أسبوعيًا: أبرز الفرص، أخبار القطاع، والمؤشرات المهمة.</p>
         <div class="newsletter-row"><button class="btn btn-outline" style="background:#fff;color:var(--juniper);border:none;" onclick="previewNewsletter()">معاينة النشرة</button><button class="btn btn-outline" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);" onclick="toggleNewsletterSubscription()">تفضيلات البريد</button></div>
-        <div class="newsletter-status" id="newsletter-status">يتم حفظ بريدك ضمن قائمة النشرة عند إنشاء الحساب.</div>
+        <div class="newsletter-status" id="newsletter-status">عند تفعيل النشرة، تصلك أحدث نشرة فورًا، ثم تصلك نشرة جديدة أسبوعيًا.</div>
       </div>
       <div id="newsletter-preview-wrap" style="display:none;"></div>
       <div class="section-title px">⚙️ الإعدادات</div>
@@ -765,7 +765,7 @@
       }
 
       showToast(data.newsletter_subscribed
-        ? '✅ تم حفظ الحساب والاشتراك في النشرة'
+        ? (data.immediate_email === 'sent' ? '📩 تم الاشتراك وإرسال آخر نشرة فورًا' : '✅ تم حفظ الحساب والاشتراك في النشرة')
         : '✅ تم حفظ الحساب');
 
       return true;
@@ -801,8 +801,12 @@
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.response || 'subscription error');
-      document.getElementById('newsletter-status').textContent = newsletterEnabled ? '✓ النشرة الأسبوعية مفعلة.' : 'تم إيقاف النشرة الأسبوعية.';
-      showToast(newsletterEnabled ? '📩 تم تفعيل النشرة' : '🔕 تم إيقاف النشرة');
+      document.getElementById('newsletter-status').textContent = newsletterEnabled
+        ? (data.immediate_email === 'sent' ? '✓ تم تفعيل النشرة وإرسال آخر إصدار فورًا، وستصلك الإصدارات الجديدة أسبوعيًا.' : '✓ النشرة الأسبوعية مفعلة.')
+        : 'تم إيقاف النشرة الأسبوعية.';
+      showToast(newsletterEnabled
+        ? (data.immediate_email === 'sent' ? '📩 أُرسلت النشرة فورًا' : '📩 تم تفعيل النشرة')
+        : '🔕 تم إيقاف النشرة');
     } catch(e) {
       newsletterEnabled = !newsletterEnabled;
       showToast('⚠️ تعذر تحديث تفضيل البريد');
