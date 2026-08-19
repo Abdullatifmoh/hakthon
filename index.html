@@ -352,7 +352,7 @@
     <div class="chat-container">
       <div class="chat-messages" id="chat-messages">
         <div class="chat-message ai">
-          👋 مرحباً! أنا المستشار الذكي المدعوم بـ OpenAI.<br>
+          👋 مرحباً! أنا المستشار الذكي المدعوم بـ Gemini.<br>
           **اسألني أي شيء** عن:<br>
           📊 تحليل المشاريع • ⚠️ المخاطر • 💰 العوائد<br>
           📜 الملكية • 🧭 المرشدين • 🌍 رؤية 2030<br>
@@ -377,13 +377,13 @@
           <div class="analysis-box" id="analysis-box">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <h4>🤖 تحليل الذكاء الاصطناعي</h4>
-              <span class="ai-badge"><span class="sparkle">✦</span> OpenAI <span class="online-dot"></span></span>
+              <span class="ai-badge"><span class="sparkle">✦</span> Gemini <span class="online-dot"></span></span>
             </div>
             <p id="ai-analysis">جاري تحليل المشروع...</p>
             <div class="score" id="ai-score">
-              <div><div class="num clay" id="ai-risk">متوسط</div><div class="label">مخاطر</div></div>
-              <div><div class="num green" id="ai-potential">عالية</div><div class="label">الفرص</div></div>
-              <div><div class="num" id="ai-confidence">85%</div><div class="label">ثقة</div></div>
+              <div><div class="num clay" id="ai-risk">متوسط</div><div class="label">مستوى المخاطر</div></div>
+              <div><div class="num green" id="ai-potential">متوسطة</div><div class="label">جاذبية الاستثمار</div></div>
+              <div><div class="num" id="ai-financial-check">مكتمل</div><div class="label">الفحص المالي</div></div>
             </div>
             <button class="btn btn-outline" style="margin-top:8px;padding:8px;font-size:12px;" onclick="askAIAboutProject()">💬 اسأل الذكاء الاصطناعي عن هذا المشروع</button>
           </div>
@@ -397,7 +397,18 @@
         <div class="dpane" data-dpane="progress" style="display:none;">
           <div class="section-title">حوكمة صرف الأموال</div><p style="font-size:12px;color:#6B7772;margin-bottom:4px;line-height:1.7;">لا تُصرف الأموال دفعة واحدة، بل على مراحل مرتبطة بإنجاز فعلي موثّق، من حساب أمانة مخصص للمشروع.</p>
           <div class="milestone-track"><div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>تحديد<br>الميزانية</p></div><div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>توقيع<br>العقد</p></div><div class="mstep done"><div class="line"></div><div class="dot">✓</div><p>إثبات<br>الإنجاز</p></div><div class="mstep"><div class="line"></div><div class="dot">4</div><p>مراجعة<br>مالية</p></div><div class="mstep"><div class="line"></div><div class="dot">5</div><p>اعتماد<br>الدفعة</p></div><div class="mstep"><div class="line"></div><div class="dot">6</div><p>صرف<br>الدفعة</p></div></div>
-          <div class="card" style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>المخطط (Budget)</span><b class="num">50,000 ﷼</b></div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>المصروف فعليًا (Actual)</span><b class="num">38,000 ﷼</b></div><div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--clay);"><span>الانحراف (Variance)</span><b class="num">قيد التنفيذ ضمن الحدود</b></div></div>
+          <div class="card" style="margin-bottom:16px;">
+            <div style="font-family:'El Messiri';font-weight:700;font-size:14px;margin-bottom:10px;color:var(--ink);">مؤشرات الأداء المالي</div>
+            <div class="invest-summary-row"><span>المخطط (Budget)</span><b class="num" id="pd-budget">0 ﷼</b></div>
+            <div class="invest-summary-row"><span>المصروف فعليًا (Actual)</span><b class="num" id="pd-actual">0 ﷼</b></div>
+            <div class="invest-summary-row"><span>المتبقي (Remaining)</span><b class="num" id="pd-remaining">0 ﷼</b></div>
+            <div class="invest-summary-row"><span>الانحراف (Variance)</span><b class="num" id="pd-variance">0 ﷼</b></div>
+            <div class="invest-summary-row"><span>نسبة الانحراف</span><b class="num" id="pd-variance-pct">0%</b></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--juniper-pale);">
+              <span style="font-size:12px;font-weight:700;color:var(--ink);">الحالة المالية</span>
+              <b id="pd-budget-status" style="font-size:12px;color:var(--juniper);">ضمن الميزانية</b>
+            </div>
+          </div>
         </div>
         <div class="dpane" data-dpane="updates" style="display:none;">
           <div class="section-title">تحديثات رائد المشروع</div>
@@ -577,10 +588,10 @@
     'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop&crop=center'
   ];
   const projects = [
-    { id:1, name:'واحة أبها الترفيهية', location:'أبها، عسير', sector:'ترفيه موسمي', cover:'linear-gradient(135deg,#2F5D50,#123027)', image:projectImages[0], target:50000, raised:38000, shares:50, price:1000, daysLeft:6, guide:'المرشد خالد المالكي', desc:'منطقة ألعاب وترفيه موسمية مصغّرة في إحدى وجهات أبها السياحية خلال فترة الصيف.' },
-    { id:2, name:'مخيم نجوم العلا', location:'العلا، المدينة المنورة', sector:'ضيافة وإقامة', cover:'linear-gradient(135deg,#C1652F,#7C3E19)', image:projectImages[1], target:120000, raised:64200, shares:120, price:1000, daysLeft:14, guide:'المرشدة سارة الحربي', desc:'مخيم فاخر مؤقت بإطلالة على المدائن الصالحة، تجربة مبيت تحت النجوم.' },
-    { id:3, name:'جولات كورنيش جدة', location:'جدة، مكة المكرمة', sector:'جولات وفعاليات', cover:'linear-gradient(135deg,#3E7767,#1B2A28)', image:projectImages[2], target:80000, raised:80000, shares:80, price:1000, daysLeft:0, funded:true, guide:'المرشد عمر الزهراني', desc:'باقة جولات بحرية مسائية على كورنيش جدة بقوارب مستأجرة موسميًا.' },
-    { id:4, name:'واحة الأحساء التراثية', location:'الأحساء، المنطقة الشرقية', sector:'ترفيه موسمي', cover:'linear-gradient(135deg,#A8842F,#5B4820)', image:projectImages[3], target:90000, raised:42000, shares:90, price:1000, daysLeft:11, guide:'المرشد عبدالرحمن الحربي', desc:'تجربة سياحية موسمية في الأحساء تجمع بين الفعاليات التراثية وتجارب الواحة.' }
+    { id:1, name:'واحة أبها الترفيهية', location:'أبها، عسير', sector:'ترفيه موسمي', cover:'linear-gradient(135deg,#2F5D50,#123027)', image:projectImages[0], target:50000, raised:38000, shares:50, price:1000, daysLeft:6, guide:'المرشد خالد المالكي', risk:'منخفض', attractiveness:'متوسطة', financialCheck:'مكتمل', budget:50000, actual:38000, analysis:'الموقع استراتيجي والطلب السياحي مناسب، مع بقاء جزء من الميزانية غير مصروف.', desc:'منطقة ألعاب وترفيه موسمية مصغّرة في إحدى وجهات أبها السياحية خلال فترة الصيف.' },
+    { id:2, name:'مخيم نجوم العلا', location:'العلا، المدينة المنورة', sector:'ضيافة وإقامة', cover:'linear-gradient(135deg,#C1652F,#7C3E19)', image:projectImages[1], target:120000, raised:64200, shares:120, price:1000, daysLeft:14, guide:'المرشدة سارة الحربي', risk:'منخفض', attractiveness:'عالية', financialCheck:'مكتمل', budget:120000, actual:64200, analysis:'وجهة سياحية قوية، والتمويل الحالي أقل من الميزانية المستهدفة.', desc:'مخيم فاخر مؤقت بإطلالة على المدائن الصالحة، تجربة مبيت تحت النجوم.' },
+    { id:3, name:'جولات كورنيش جدة', location:'جدة، مكة المكرمة', sector:'جولات وفعاليات', cover:'linear-gradient(135deg,#3E7767,#1B2A28)', image:projectImages[2], target:80000, raised:80000, shares:80, price:1000, daysLeft:0, funded:true, guide:'المرشد عمر الزهراني', risk:'منخفض', attractiveness:'متوسطة', financialCheck:'مكتمل', budget:80000, actual:80000, analysis:'تم تمويل المشروع بالكامل وفق البيانات الحالية، مع إمكانية التوسع.', desc:'باقة جولات بحرية مسائية على كورنيش جدة بقوارب مستأجرة موسميًا.' },
+    { id:4, name:'واحة الأحساء التراثية', location:'الأحساء، المنطقة الشرقية', sector:'ترفيه موسمي', cover:'linear-gradient(135deg,#A8842F,#5B4820)', image:projectImages[3], target:90000, raised:42000, shares:90, price:1000, daysLeft:11, guide:'المرشد عبدالرحمن الحربي', risk:'متوسط', attractiveness:'متوسطة', financialCheck:'مكتمل', budget:90000, actual:42000, analysis:'المشروع يجمع بين التراث والترفيه ويحتاج إلى تسويق قوي.', desc:'تجربة سياحية موسمية في الأحساء تجمع بين الفعاليات التراثية وتجارب الواحة.' }
   ];
 
   // ========== STATE ==========
@@ -598,7 +609,7 @@
     { title:'4. استفد من نتائج المشروع', text:'إذا حقق المشروع أرباحًا، تكون استفادتك وفق آلية العوائد والحقوق والتوزيع المحددة في اتفاقية الشراكة.' }
   ];
 
-  // ========== AI FUNCTIONS - مع OpenAI ==========
+  // ========== AI FUNCTIONS - مع Gemini ==========
   async function callAI(message) {
     try {
       const response = await fetch(`${AI_API_URL}/chat`, {
@@ -614,7 +625,7 @@
       return data.response;
     } catch (error) {
       console.warn('AI offline:', error);
-      return "⚠️ عذراً، المستشار الذكي غير متصل حالياً. تأكد من تشغيل خادم OpenAI.";
+      return "⚠️ عذراً، المستشار الذكي غير متصل حالياً. تأكد من تشغيل خادم Gemini.";
     }
   }
 
@@ -662,7 +673,7 @@
     const container = document.getElementById('chat-messages');
     container.innerHTML = `
       <div class="chat-message ai">
-        👋 مرحباً! أنا المستشار الذكي المدعوم بـ OpenAI.<br>
+        👋 مرحباً! أنا المستشار الذكي المدعوم بـ Gemini.<br>
         **اسألني أي شيء** عن:<br>
         📊 تحليل المشاريع • ⚠️ المخاطر • 💰 العوائد<br>
         📜 الملكية • 🧭 المرشدين • 🌍 رؤية 2030<br>
@@ -867,21 +878,37 @@
     const oneSharePct = (100 / p.shares);
     document.getElementById('pd-ownership').textContent = 'السهم الواحد يمثل تقريبًا ' + oneSharePct.toLocaleString('ar-SA', { maximumFractionDigits: 2 }) + '% من إجمالي ملكية المشروع.';
 
-    const riskLevels = ['منخفض', 'متوسط', 'مرتفع'];
-    const potentialLevels = ['منخفضة', 'متوسطة', 'عالية'];
-    const risk = riskLevels[Math.floor(Math.random() * 3)];
-    const potential = potentialLevels[Math.floor(Math.random() * 3)];
-    const confidence = 70 + Math.floor(Math.random() * 25);
+    const risk = p.risk || 'متوسط';
+    const attractiveness = p.attractiveness || p.potential || 'متوسطة';
+    const financialCheck = p.financialCheck || 'مكتمل';
+
+    // لا نستخدم نسبة "ثقة" عشوائية؛ المؤشرات هنا لها معنى مالي واضح.
     document.getElementById('ai-risk').textContent = risk;
-    document.getElementById('ai-potential').textContent = potential;
-    document.getElementById('ai-confidence').textContent = confidence + '%';
-    
-    const analysisTexts = [
-      `📊 تحليل المشروع "${p.name}":\n• الموقع استراتيجي مع تدفق سياحي جيد.\n• الخطة المالية تبدو معقولة مع نسبة مخاطر ${risk}.\n• فرص النمو ${potential} في السنوات القادمة.\n• نسبة الثقة: ${confidence}%.`,
-      `🔍 تقييم "${p.name}":\n• السوق المستهدف مناسب للاستثمار.\n• المخاطر المالية ${risk}.\n• العوائد المتوقعة ${potential}.\n• التوصية: استثمار مناسب.`,
-      `📈 تحليل "${p.name}":\n• الجدوى المالية جيدة مع ${risk} مخاطرة.\n• الطلب السياحي في ارتفاع.\n• العوائد المتوقعة ${potential}.\n• الثقة: ${confidence}%.`
-    ];
-    document.getElementById('ai-analysis').textContent = analysisTexts[Math.floor(Math.random() * analysisTexts.length)];
+    document.getElementById('ai-potential').textContent = attractiveness;
+    document.getElementById('ai-financial-check').textContent = financialCheck;
+
+    document.getElementById('ai-analysis').textContent =
+      `📊 تحليل المشروع "${p.name}":\n` +
+      `• مستوى المخاطر: ${risk}.\n` +
+      `• جاذبية الاستثمار: ${attractiveness}.\n` +
+      `• الفحص المالي: ${financialCheck}.\n` +
+      `• ${p.analysis || 'لا تتوفر تفاصيل تحليل إضافية في قاعدة بيانات المشروع.'}`;
+
+    // Budget vs Actual: الانحراف رقم + نسبة + حالة مستقلة.
+    const budget = Number(p.budget ?? p.target ?? 0);
+    const actual = Number(p.actual ?? p.raised ?? 0);
+    const remaining = budget - actual;
+    const variance = actual - budget;
+    const variancePct = budget > 0 ? (variance / budget) * 100 : 0;
+    const status = variance <= 0 ? 'ضمن الميزانية' : 'تجاوز الميزانية';
+
+    document.getElementById('pd-budget').textContent = fmt(budget) + ' ﷼';
+    document.getElementById('pd-actual').textContent = fmt(actual) + ' ﷼';
+    document.getElementById('pd-remaining').textContent = fmt(Math.max(remaining, 0)) + ' ﷼';
+    document.getElementById('pd-variance').textContent = (variance > 0 ? '+' : '') + fmt(variance) + ' ﷼';
+    document.getElementById('pd-variance-pct').textContent = (variance > 0 ? '+' : '') + variancePct.toLocaleString('ar-SA', { maximumFractionDigits: 1 }) + '%';
+    document.getElementById('pd-budget-status').textContent = status;
+    document.getElementById('pd-budget-status').style.color = variance <= 0 ? 'var(--juniper)' : 'var(--danger)';
 
     switchDtab('overview');
     document.getElementById('project-scroll').scrollTop = 0;
