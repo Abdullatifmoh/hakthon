@@ -535,17 +535,29 @@
       <div id="newsletter-preview-wrap" style="display:none;"></div>
       <div class="section-title px">⚙️ الإعدادات</div>
       <div class="px">
-        <div class="menu-item" onclick="showToast('🏦 جاري فتح الحساب البنكي...')"><div class="ic">🏦</div><span>الحساب البنكي</span><div class="arrow">‹</div></div>
-        <div class="menu-item" onclick="showToast('📄 عرض جميع الاتفاقيات الموقعة')"><div class="ic">📄</div><span>جميع الاتفاقيات</span><div class="arrow">‹</div></div>
-        <div class="menu-item" onclick="showToast('💰 عرض تفاصيل العوائد')"><div class="ic">💰</div><span>تفاصيل العوائد</span><div class="arrow">‹</div></div>
-        <div class="menu-item" onclick="showToast('📊 جاري تحميل التقارير المالية...')"><div class="ic">📊</div><span>تقارير استثماراتي</span><div class="arrow">‹</div></div>
+        <div class="menu-item" onclick="openAccountFeature('bank')"><div class="ic">🏦</div><span>الحساب البنكي</span><div class="arrow">‹</div></div>
+        <div class="menu-item" onclick="openAccountFeature('agreements')"><div class="ic">📄</div><span>جميع الاتفاقيات</span><div class="arrow">‹</div></div>
+        <div class="menu-item" onclick="openAccountFeature('returns')"><div class="ic">💰</div><span>تفاصيل العوائد</span><div class="arrow">‹</div></div>
+        <div class="menu-item" onclick="openAccountFeature('reports')"><div class="ic">📊</div><span>تقارير استثماراتي</span><div class="arrow">‹</div></div>
         <div class="menu-item" id="entrepreneur-menu" style="display:none;" onclick="go('screen-submit')"><div class="ic">🧭</div><span>تقديم مشروع جديد</span><div class="arrow">‹</div></div>
-        <div class="menu-item" onclick="showToast('💬 جاري الاتصال بالاستشاري المالي...')"><div class="ic">💬</div><span>استشارة مالية</span><div class="arrow">‹</div></div>
+        <div class="menu-item" onclick="openFinancialConsultation()"><div class="ic">💬</div><span>استشارة مالية</span><div class="arrow">‹</div></div>
         <div class="menu-item" onclick="showSettings()"><div class="ic">⚙️</div><span>إعدادات الحساب</span><div class="arrow">‹</div></div>
         <div class="menu-item" style="border-bottom:none;" onclick="showToast('🚪 جاري تسجيل الخروج...'); setTimeout(()=>go('screen-splash'), 800)"><div class="ic">🚪</div><span>تسجيل الخروج</span><div class="arrow">‹</div></div>
       </div>
       <div style="height:20px;"></div>
     </div>
+    <div class="bottomnav">
+      <button class="navbtn" data-nav="home" onclick="switchNav('home')"><span class="ic">🧭</span>الفرص</button>
+      <button class="navbtn" data-nav="portfolio" onclick="switchNav('portfolio')"><span class="ic">📊</span>محفظتي</button>
+      <button class="navbtn active" data-nav="profile" onclick="switchNav('profile')"><span class="ic">👤</span>حسابي</button>
+    </div>
+  </div>
+
+
+  <!-- ACCOUNT FEATURE DETAILS -->
+  <div class="screen" id="screen-account-feature">
+    <div class="topbar"><div class="back-btn" onclick="go('screen-profile')">→</div><h1 id="account-feature-title">التفاصيل</h1></div>
+    <div class="scroll px" id="account-feature-content" style="padding-top:14px;"></div>
     <div class="bottomnav">
       <button class="navbtn" data-nav="home" onclick="switchNav('home')"><span class="ic">🧭</span>الفرص</button>
       <button class="navbtn" data-nav="portfolio" onclick="switchNav('portfolio')"><span class="ic">📊</span>محفظتي</button>
@@ -626,7 +638,11 @@
   let currentRole = 'investor';
   let currentProject = null;
   let investShares = 1;
-  let userInvestments = [];
+  let userInvestments = [
+    { projectId: 1, shares: 20, total: 20000 },
+    { projectId: 2, shares: 25, total: 25000 },
+    { projectId: 3, shares: 37.5, total: 37500 }
+  ];
   let userName = 'عبداللطيف الرشاده';
   let userEmail = '';
   let newsletterEnabled = true;
@@ -1192,9 +1208,33 @@
   function prevHowto() { showHowto((howtoIndex - 1 + howtoData.length) % howtoData.length); }
   function closeHowto() { document.getElementById('howto-card').style.display = 'none'; }
 
+
+  // ========== ACCOUNT FEATURE PAGES ==========
+  function openAccountFeature(type) {
+    const data = {
+      bank: { title:'🏦 الحساب البنكي', html:`<div class="card" style="padding:18px"><h3>البنك الأهلي السعودي</h3><p>الحساب المرتبط بالمحفظة الاستثمارية</p><div class="bank-card" style="margin:14px 0"><div class="bank-name">🏦 البنك الأهلي السعودي</div><div class="bank-number">•••• •••• •••• 4821</div><div class="bank-holder">عبداللطيف الرشاده</div></div><p style="font-size:12px;color:#6B7772">يستخدم الحساب لاستقبال العوائد وتنفيذ عمليات الاستثمار داخل النموذج التجريبي.</p></div>` },
+      agreements: { title:'📄 جميع الاتفاقيات', html:`<div class="card" style="padding:14px"><div class="agreement-item"><div class="icon">📝</div><div class="info"><h4>اتفاقية واحة أبها الترفيهية</h4><p>تم التوقيع • 15 مارس 2026</p></div><span class="status-badge active">نشط</span></div><div class="agreement-item"><div class="icon">📝</div><div class="info"><h4>اتفاقية مخيم نجوم العلا</h4><p>تم التوقيع • 2 أبريل 2026</p></div><span class="status-badge active">نشط</span></div><div class="agreement-item"><div class="icon">📝</div><div class="info"><h4>اتفاقية جولات كورنيش جدة</h4><p>تم التوقيع • 10 يناير 2026</p></div><span class="status-badge completed">مكتمل</span></div></div>` },
+      returns: { title:'💰 تفاصيل العوائد', html:`<div class="card" style="padding:14px"><div class="return-item"><span class="project-name">واحة أبها الترفيهية</span><span class="amount">+1,800 ﷼</span></div><div class="return-item"><span class="project-name">مخيم نجوم العلا</span><span class="amount pending">قيد الحساب</span></div><div class="return-item"><span class="project-name">جولات كورنيش جدة</span><span class="amount">+3,620 ﷼</span></div><div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--fog);display:flex;justify-content:space-between"><b>إجمالي العوائد المحققة</b><b class="num" style="color:var(--juniper)">5,420 ﷼</b></div></div>` },
+      reports: { title:'📊 تقارير استثماراتي', html:`<div class="card" style="padding:16px"><h3 style="margin-bottom:14px">ملخص المحفظة</h3><div class="return-item"><span>إجمالي الاستثمار</span><b class="num">82,500 ﷼</b></div><div class="return-item"><span>عدد المشاريع</span><b class="num">3</b></div><div class="return-item"><span>العوائد المحققة</span><b class="num">5,420 ﷼</b></div><div class="return-item"><span>حالة المحفظة</span><b style="color:var(--juniper)">قيد المتابعة</b></div><button class="btn btn-primary" style="margin-top:16px" onclick="switchNav('portfolio')">عرض المحفظة</button></div>` }
+    };
+    const item=data[type]; if(!item) return;
+    document.getElementById('account-feature-title').textContent=item.title;
+    document.getElementById('account-feature-content').innerHTML=item.html;
+    go('screen-account-feature');
+  }
+
+  function openFinancialConsultation() {
+    go('screen-chat');
+    setTimeout(() => {
+      const input=document.getElementById('chat-input');
+      if(input){ input.value='أريد استشارة مالية عن محفظتي الاستثمارية ومشاريعي الحالية'; input.focus(); }
+    }, 150);
+  }
+
   // ========== INIT ==========
   updateProfileUI();
   renderProjects();
+  renderPortfolio();
   showHowto(0);
 
   // التحقق من صحة الخادم
