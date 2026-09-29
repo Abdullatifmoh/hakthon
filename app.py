@@ -37,7 +37,15 @@ CORS(
 DATABASE_PATH = os.getenv("DATABASE_PATH", "tourism_investment.db")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+GEMINI_FALLBACK_MODELS = [
+    model.strip()
+    for model in os.getenv(
+        "GEMINI_FALLBACK_MODELS",
+        "gemini-3.1-flash-lite,gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash",
+    ).split(",")
+    if model.strip()
+]
 
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
@@ -246,90 +254,75 @@ def ask_gemini(message, history=None):
 
     prompt += f"\n\nسؤال المستخدم:\n{message}\n\nأجب بالعربية."
 
-    max_attempts = 3
+    # Primary model first, then automatic fallbacks.
+    models = []
+    for model in [GEMINI_MODEL, *GEMINI_FALLBACK_MODELS]:
+        if model and model not in models:
+            models.append(model)
 
-    for attempt in range(max_attempts):
-        try:
-            print(
-                f"Gemini request {attempt + 1}/{max_attempts} "
-                f"using model: {GEMINI_MODEL}"
-            )
+    max_attempts_per_model = 2
+    last_error = ""
 
-            response = gemini_client.models.generate_content(
-                model=GEMINI_MODEL,
-                contents=prompt,
-            )
-
-            if response.text:
-                print("Gemini response successful.")
-                return response.text
-
-            return "لم أتمكن من إنشاء إجابة حالياً."
-
-        except Exception as exc:
-            error = str(exc)
-
-            print(
-                f"Gemini error - attempt "
-                f"{attempt + 1}/{max_attempts}: {error}"
-            )
-
-            # Temporary service overload / high demand
-            if (
-                "503" in error
-                or "UNAVAILABLE" in error.upper()
-                or "high demand" in error.lower()
-            ):
-                if attempt < max_attempts - 1:
-                    wait_seconds = 2 * (attempt + 1)
-                    print(
-                        f"Gemini temporarily unavailable. "
-                        f"Retrying in {wait_seconds} seconds..."
-                    )
-                    time.sleep(wait_seconds)
-                    continue
-
-                return (
-                    "⚠️ المستشار الذكي مشغول حالياً بسبب ضغط مؤقت. "
-                    "حاول مرة أخرى بعد قليل."
+    for model in models:
+        for attempt in range(max_attempts_per_model):
+            try:
+                print(
+                    f"Gemini request model={model} "
+                    f"attempt={attempt + 1}/{max_attempts_per_model}"
                 )
 
-            # Quota / rate limit
-            if (
-                "429" in error
-                or "quota" in error.lower()
-                or "RESOURCE_EXHAUSTED" in error.upper()
-            ):
-                return (
-                    "⚠️ تم الوصول إلى حد استخدام المستشار الذكي حالياً. "
-                    "حاول مرة أخرى لاحقاً."
+                response = gemini_client.models.generate_content(
+                    model=model,
+                    contents=prompt,
                 )
 
-            # Invalid API key
-            if (
-                "API_KEY_INVALID" in error.upper()
-                or (
-                    "invalid" in error.lower()
-                    and "key" in error.lower()
-                )
-            ):
-                return "⚠️ يوجد خطأ في إعداد مفتاح Gemini."
+                if getattr(response, "text", None):
+                    print(f"Gemini response successful using {model}.")
+                    return response.text
 
-            # Model unavailable / not found
-            if (
-                "404" in error
-                or "NOT_FOUND" in error.upper()
-            ):
-                return (
-                    "⚠️ نموذج الذكاء الاصطناعي المحدد غير متاح حالياً."
-                )
+                print(f"Gemini returned no text using {model}; trying fallback.")
+                break
 
-            return (
-                "⚠️ تعذر الاتصال بالمستشار الذكي حالياً. "
-                "حاول مرة أخرى."
-            )
+            except Exception as exc:
+                error = str(exc)
+                last_error = error
+                upper = error.upper()
+                lower = error.lower()
+                print(f"Gemini error model={model}: {error}")
 
-    return "⚠️ المستشار الذكي غير متاح مؤقتاً."
+                # Invalid key is global: switching models will not help.
+                if "API_KEY_INVALID" in upper or ("invalid" in lower and "key" in lower):
+                    return "⚠️ يوجد خطأ في إعداد مفتاح Gemini."
+
+                # 503 can be temporary. Retry this model once, then fallback.
+                if "503" in error or "UNAVAILABLE" in upper or "high demand" in lower:
+                    if attempt < max_attempts_per_model - 1:
+                        wait_seconds = 2
+                        print(f"Temporary overload on {model}; retrying in {wait_seconds}s...")
+                        time.sleep(wait_seconds)
+                        continue
+                    print(f"{model} still unavailable; switching to fallback model.")
+                    break
+
+                # Quota/rate limit: immediately switch to the next model.
+                if "429" in error or "quota" in lower or "RESOURCE_EXHAUSTED" in upper:
+                    print(f"Rate limit reached for {model}; switching to fallback model.")
+                    break
+
+                # Model removed/not available: immediately switch to fallback.
+                if "404" in error or "NOT_FOUND" in upper:
+                    print(f"Model {model} unavailable; switching to fallback model.")
+                    break
+
+                # Other model-specific errors: try the next fallback.
+                print(f"Unexpected error on {model}; switching to fallback model.")
+                break
+
+    print(f"All Gemini models failed. Last error: {last_error}")
+    return (
+        "⚠️ جميع نماذج المستشار الذكي المتاحة مشغولة أو وصلت إلى حد الاستخدام حالياً. "
+        "حاول مرة أخرى بعد قليل."
+    )
 
 
 # ============================================================
